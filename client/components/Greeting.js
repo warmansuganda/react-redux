@@ -1,7 +1,13 @@
 import React from 'react';
+import NavigationBar from './NavigationBar';
 
 export default () => {
     return (
-        <h1>Hello react from class greeting!</h1>
+        <div>
+            <NavigationBar />
+            <div className="jumbotron">
+                <h1>Hello react from class greeting!</h1>
+            </div>
+        </div>
     )
 }
