@@ -8,6 +8,8 @@ class SignupForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            errors: {},
+            isLoading: false,
             username : '',
             email : '',
             password : '',
@@ -26,10 +28,15 @@ class SignupForm extends React.Component {
     onSubmit(e) {
         e.preventDefault();
         // console.log(this.state);
-        this.props.userSignupRequest(this.state);
+        this.setState({ errors: {}, isLoading: true });
+        this.props.userSignupRequest(this.state).then(
+            () => {},
+            (err) => this.setState({ errors: err.response.data, isLoading: false })
+        );
     }
 
     render() {
+        const { errors } = this.state;
         const optTimezone = map(timezones, (val, key) => 
             <option key={val} value={val}>{key}</option> 
         );
@@ -45,6 +52,8 @@ class SignupForm extends React.Component {
                         value={this.state.username}
                         onChange={this.onChange}
                         className="form-control" />
+
+                    {errors.username && <span className="help-block">{errors.username}</span>}
                 </div>
 
                 <div className="form-group">
@@ -55,6 +64,8 @@ class SignupForm extends React.Component {
                         value={this.state.email}
                         onChange={this.onChange}
                         className="form-control" />
+
+                    {errors.email && <span className="help-block">{errors.email}</span>}
                 </div>
 
                 <div className="form-group">
@@ -65,6 +76,8 @@ class SignupForm extends React.Component {
                         value={this.state.password}
                         onChange={this.onChange}
                         className="form-control" />
+
+                    {errors.password && <span className="help-block">{errors.password}</span>}
                 </div>
 
                 <div className="form-group">
@@ -75,6 +88,8 @@ class SignupForm extends React.Component {
                         value={this.state.passwordConfirmation}
                         onChange={this.onChange}
                         className="form-control" />
+
+                    {errors.passwordConfirmation && <span className="help-block">{errors.passwordConfirmation}</span>}
                 </div>
 
                 <div className="form-group">
@@ -87,10 +102,12 @@ class SignupForm extends React.Component {
                         <option value="" disabled>Select your timezone</option>
                         {optTimezone}
                     </select>
+
+                    {errors.timezone && <span className="help-block">{errors.timezone}</span>}
                 </div>
 
                 <div className="form-group">
-                    <button className="btn btn-primary btn-lg">Sign Up</button>
+                    <button disabled={this.state.isLoading} className="btn btn-primary btn-lg">Sign Up</button>
                 </div>
 
             </form>
