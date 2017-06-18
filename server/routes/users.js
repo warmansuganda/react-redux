@@ -69,4 +69,14 @@ router.post('/', (req, res) => {
 
 });
 
+router.get('/is-exist', (req, res) => {
+    const {identifier, field} = req.query;
+    
+    Users.query({
+        select: [ field ],
+    }).where(field, identifier).fetch().then(user => {
+        res.json({ user });
+    });
+});
+
 export default router;
