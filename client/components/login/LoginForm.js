@@ -36,7 +36,7 @@ class LoginForm extends React.Component {
         if (this.isValid()) {
             this.setState({errors: {}, isLoading: true});
             this.props.userAuth(this.state).then(
-                () => {
+                (res) => {
                     this
                         .props
                         .history
