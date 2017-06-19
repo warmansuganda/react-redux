@@ -2,9 +2,11 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import Promise from 'bluebird';
 import isEmpty from 'lodash/isEmpty';
+import jwt from 'jsonwebtoken';
 
 import commonValidation from '../shared/validations/signup';
 import Users from '../models/Users';
+import config from '../config';
 
 let router = express.Router();
 
@@ -50,10 +52,9 @@ router.post('/', (req, res) => {
     // const { errors, isValid } = validateInput(req.body);
     validateInput(req.body, commonValidation).then(({errors, isValid}) => {
         if (isValid) {
-            // res.json({success: true});
             const {username, password, email, timezone} = req.body;
             const password_digest = bcrypt.hashSync(password, 10);
-
+            // res.json({password: password, pas: password_digest});
             Users.forge({
                 username, password_digest, email, timezone
             }, {hasTimestamps: true}).save().then(user => 
@@ -76,6 +77,33 @@ router.get('/is-exist', (req, res) => {
         select: [ field ],
     }).where(field, identifier).fetch().then(user => {
         res.json({ user });
+    });
+});
+
+router.post('/auth', (req, res) => {
+    const {username, password} = req.body;
+    // res.json({pas: bcrypt.hashSync(password, 10)});
+    Users.query({
+        where: {
+            username: username
+        },
+        orWhere: {
+            email: username
+        }
+    }).fetch().then(user => {
+        if (user) {
+            if (bcrypt.compareSync(password, user.get('password_digest'))) {
+                const token = jwt.sign({
+                    id: user.get('id'),
+                    username: user.get('username'),
+                }, config.jwtSecret);
+                res.json({ token });
+            } else {
+                res.status(401).json({ errors: { form: 'Invalid credential' } });
+            }
+        } else {
+            res.status(401).json({ errors: { form: 'Invalid credential' } });
+        }
     });
 });
 
